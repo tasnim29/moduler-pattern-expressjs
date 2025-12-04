@@ -1,17 +1,13 @@
 import { Request, Response } from "express";
-import { pool } from "../../config/db";
-import { userServices } from "./user.service";
+import { todoServices } from "./todo.service";
 
-// routes--->controller--->service
-// so here we handle the controller part only means get req and send res
-const createUser = async (req: Request, res: Response) => {
-
+const createTodo = async (req: Request, res: Response) => {
+  
   try {
-    const result = await userServices.createUser( req.body);
-
-    res.status(201).json({
+    const result = await todoServices.createTodo(req.body);
+    res.status(200).json({
       success: true,
-      message: "data inserted successfully",
+      message: "Inserted Successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
@@ -20,11 +16,10 @@ const createUser = async (req: Request, res: Response) => {
       message: error.message,
     });
   }
-  console.log(req.body);
 };
-const getUser = async (req: Request, res: Response) => {
+const getTodo = async (req: Request, res: Response) => {
   try {
-    const result = await userServices.getUser();
+    const result = await todoServices.getTodo();
     res.status(201).json({
       success: true,
       data: result.rows,
@@ -36,9 +31,9 @@ const getUser = async (req: Request, res: Response) => {
     });
   }
 };
-const getSingleUser = async (req: Request, res: Response) => {
+const getSingleTodo = async (req: Request, res: Response) => {
   try {
-    const result = await userServices.getSingleUser(req.params.id );
+    const result = await todoServices.getSingleTodo(req.params.id!);
     if (result.rows.length === 0) {
       res.status(401).json({
         success: false,
@@ -51,6 +46,7 @@ const getSingleUser = async (req: Request, res: Response) => {
         data: result.rows[0],
       });
     }
+    // console.log(result.rows);
   } catch (error: any) {
     res.status(500).json({
       success: false,
@@ -58,20 +54,18 @@ const getSingleUser = async (req: Request, res: Response) => {
     });
   }
 };
-const updateUser =  async (req: Request, res: Response) => {
-  const { name, email } = req.body;
-
+const updateTodo = async (req: Request, res: Response) => {
+  
   try {
-    const result = await userServices.updateUser(name,email,req.params.id!)
+    const result = await todoServices.updateTodo( req.body,req.params.id!);
     if (result.rows.length === 0) {
       res.status(400).json({
-        success: true,
-        Message: "no data found",
+        success: false,
+        message: "no data found",
       });
     } else {
-      res.status(200).json({
+      res.status(201).json({
         success: true,
-        message: "updated data",
         data: result.rows[0],
       });
     }
@@ -81,11 +75,11 @@ const updateUser =  async (req: Request, res: Response) => {
       message: error.message,
     });
   }
-}
-const deleteUser = async (req: Request, res: Response) => {
+};
+const deleteTodo = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const result = await userServices.deleteUser(id as string)
+    const result = await todoServices.deleteTodo(id!);
     if (result.rowCount === 0) {
       res.status(400).json({
         success: false,
@@ -104,11 +98,12 @@ const deleteUser = async (req: Request, res: Response) => {
       message: error.message,
     });
   }
-}
-export const userControllers = {
-  createUser,
-  getUser,
-  getSingleUser,
-  updateUser,
-  deleteUser
+};
+
+export const todoControllers = {
+  createTodo,
+  getTodo,
+  getSingleTodo,
+  updateTodo,
+  deleteTodo,
 };

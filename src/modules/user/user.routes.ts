@@ -1,6 +1,8 @@
-import { Request, Response, Router } from "express";
-import { pool } from "../../config/db";
+import { Router } from "express";
+
 import { userControllers } from "./user.controller";
+import logger from "../../middleware/logger";
+import auth from "../../middleware/auth";
 
 const router = Router();
 
@@ -8,19 +10,10 @@ const router = Router();
 // so here we handle the route part only
 router.post("/", userControllers.createUser);
 
-router.get("/", async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query(`SELECT * FROM users`);
-    res.status(201).json({
-      success: true,
-      data: result.rows,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+router.get("/",logger,auth("admin"), userControllers.getUser);
+
+router.get("/:id", userControllers.getSingleUser);
+router.put("/:id", userControllers.updateUser);
+router.delete("/:id", userControllers.deleteUser);
 
 export const userRoutes = router;
